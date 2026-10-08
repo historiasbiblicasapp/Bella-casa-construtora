@@ -672,3 +672,15 @@ body {
     border-right: 1px solid var(--border);
   }
 }
+/* Logo na tela de login */
+.auth-logo-img {
+  max-width: 280px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 24px;
+  display: block;
+}
+
+.auth-screen {
+  background: #000000;
+}

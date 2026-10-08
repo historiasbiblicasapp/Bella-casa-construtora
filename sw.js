@@ -1,5 +1,5 @@
 /* Service Worker - PWA Bella Casa Construtora */
-const CACHE_NAME = 'bella-casa-construtora-v2';
+const CACHE_NAME = 'bella-casa-construtora-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -9,8 +9,11 @@ const ASSETS = [
   '/js/app.js',
   '/js/admin.js',
   '/manifest.json',
+  '/assets/logo.png',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/icon-512.png',
+  '/icons/favicon.png',
+  '/icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
