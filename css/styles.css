@@ -36,19 +36,47 @@ html, body {
   overflow-x: hidden;
 }
 
-body {
+/* Espaço do menu inferior só no app logado — não na tela de login */
+#app {
   padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+  min-height: 100dvh;
+}
+
+/* Login sem barra de rolagem */
+body:has(#auth:not(.hidden)) {
+  padding-bottom: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+html:has(#auth:not(.hidden)),
+body:has(#auth:not(.hidden)),
+body:has(#auth:not(.hidden)) .auth-screen {
+  overflow: hidden !important;
+  scrollbar-width: none;
+}
+
+html:has(#auth:not(.hidden))::-webkit-scrollbar,
+body:has(#auth:not(.hidden))::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 /* ========== AUTH SCREENS ========== */
 .auth-screen {
-  min-height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 100%);
+  padding: 20px 24px 88px;
+  overflow: hidden;
+  background: #000000;
+  box-sizing: border-box;
 }
 
 .auth-logo {
@@ -69,9 +97,17 @@ body {
   margin-bottom: 8px;
 }
 
+.auth-logo-img {
+  max-width: 240px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 12px;
+  display: block;
+}
+
 .auth-subtitle {
   color: var(--text-muted);
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   text-align: center;
 }
 
@@ -666,26 +702,16 @@ body {
     align-items: center;
   }
 }
-/* Logo na tela de login */
-.auth-logo-img {
-  max-width: 280px;
-  width: 100%;
-  height: auto;
-  margin-bottom: 24px;
-  display: block;
-}
-
-.auth-screen {
-  background: #000000;
-}
+/* Logo na tela de login — estilos acima em .auth-logo-img */
 
 /* ========== Responsive / Mobile polish ========== */
 html {
   -webkit-text-size-adjust: 100%;
 }
 
-body {
+body:has(#app:not(.hidden)) {
   min-height: 100dvh;
+  overflow-y: auto;
 }
 
 /* Tablets and up: center content like a phone frame is optional */
