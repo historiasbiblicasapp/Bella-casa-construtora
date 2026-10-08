@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0ea5e9">
+  <meta name="robots" content="noindex">
+  <title>Admin — Serviços & Planos</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+</head>
+<body class="admin-body">
+
+  <!-- Login Admin (mesmo fluxo do app, redireciona se não for admin) -->
+  <div id="admin-gate" class="auth-screen">
+    <div class="auth-logo">🛡️</div>
+    <h1 class="auth-title">Painel Administrativo</h1>
+    <p class="auth-subtitle">Acesso restrito a administradores</p>
+    <div class="auth-card">
+      <div class="error-msg" id="gate-error"></div>
+      <p class="text-muted text-sm text-center">Faça login com uma conta <strong>master</strong> ou <strong>admin</strong>.</p>
+      <p class="text-center mt-2">
+        <a href="index.html" class="btn btn-outline" style="display:inline-flex;width:auto">← Voltar ao app</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Dashboard Admin -->
+  <div id="admin-app" class="hidden">
+    <aside class="admin-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span>🛡️</span>
+        <div>
+          <strong>Admin</strong>
+          <small>Serviços & Planos</small>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-item active" data-section="dashboard" onclick="adminNav('dashboard')">
+          <span>📊</span> Dashboard
+        </button>
+        <button class="sidebar-item" data-section="clientes" onclick="adminNav('clientes')">
+          <span>👥</span> Clientes
+        </button>
+        <button class="sidebar-item" data-section="orcamentos" onclick="adminNav('orcamentos')">
+          <span>📋</span> Orçamentos
+        </button>
+        <button class="sidebar-item" data-section="assinaturas" onclick="adminNav('assinaturas')">
+          <span>📅</span> Assinaturas
+        </button>
+        <button class="sidebar-item" data-section="planos" onclick="adminNav('planos')">
+          <span>💎</span> Planos
+        </button>
+        <button class="sidebar-item" data-section="historico" onclick="adminNav('historico')">
+          <span>📜</span> Histórico Serviços
+        </button>
+        <button class="sidebar-item" data-section="parceiros" onclick="adminNav('parceiros')">
+          <span>🤝</span> Parceiros
+        </button>
+        <button class="sidebar-item" data-section="galeria" onclick="adminNav('galeria')">
+          <span>🖼️</span> Galeria
+        </button>
+        <button class="sidebar-item" data-section="pagamentos" onclick="adminNav('pagamentos')">
+          <span>💳</span> Pagamentos
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-user" id="admin-user-info">Admin</div>
+        <button class="btn btn-outline btn-sm" onclick="adminLogout()">Sair</button>
+        <a href="index.html" class="text-sm text-muted" style="margin-top:8px;display:block">← Ir ao app cliente</a>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h1 id="section-title">Dashboard</h1>
+        <div class="topbar-actions">
+          <span class="badge badge-active" id="admin-role-badge">master</span>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <!-- DASHBOARD -->
+        <section id="sec-dashboard" class="admin-section active">
+          <div class="stats-grid" id="stats-grid">
+            <div class="stat-card"><div class="stat-value" id="stat-clients">—</div><div class="stat-label">Clientes</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-budgets">—</div><div class="stat-label">Orçamentos pendentes</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-subs">—</div><div class="stat-label">Assinaturas ativas</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-revenue">—</div><div class="stat-label">Receita mensal est.</div></div>
+          </div>
+          <div class="admin-card mt-2">
+            <h3>Últimos orçamentos</h3>
+            <div id="dash-recent-budgets" class="table-wrap"></div>
+          </div>
+          <div class="admin-card mt-2">
+            <h3>Novos clientes (7 dias)</h3>
+            <div id="dash-new-clients" class="table-wrap"></div>
+          </div>
+        </section>
+
+        <!-- CLIENTES -->
+        <section id="sec-clientes" class="admin-section">
+          <div class="section-toolbar">
+            <input type="search" id="search-clients" placeholder="Buscar por nome, e-mail ou CPF..." oninput="filterClients()">
+          </div>
+          <div class="admin-card">
+            <div class="table-wrap" id="clients-table"></div>
+          </div>
+        </section>
+
+        <!-- ORÇAMENTOS -->
+        <section id="sec-orcamentos" class="admin-section">
+          <div class="section-toolbar">
+            <select id="filter-budget-status" onchange="loadAdminBudgets()">
+              <option value="">Todos os status</option>
+              <option value="pending">Pendente</option>
+              <option value="analyzing">Em análise</option>
+              <option value="quoted">Orçado</option>
+              <option value="accepted">Aceito</option>
+              <option value="rejected">Recusado</option>
+              <option value="completed">Concluído</option>
+            </select>
+          </div>
+          <div class="admin-card">
+            <div class="table-wrap" id="budgets-table"></div>
+          </div>
+        </section>
+
+        <!-- ASSINATURAS -->
+        <section id="sec-assinaturas" class="admin-section">
+          <div class="admin-card">
+            <div class="table-wrap" id="subs-table"></div>
+          </div>
+        </section>
+
+        <!-- PLANOS -->
+        <section id="sec-planos" class="admin-section">
+          <div class="section-toolbar">
+            <button class="btn btn-primary btn-sm" onclick="openPlanModal()">+ Novo Plano</button>
+          </div>
+          <div class="admin-card">
+            <div class="table-wrap" id="plans-table"></div>
+          </div>
+        </section>
+
+        <!-- HISTÓRICO -->
+        <section id="sec-historico" class="admin-section">
+          <div class="section-toolbar">
+            <button class="btn btn-primary btn-sm" onclick="openHistoryModal()">+ Registrar Serviço</button>
+          </div>
+          <div class="admin-card">
+            <div class="table-wrap" id="history-table"></div>
+          </div>
+        </section>
+
+        <!-- PARCEIROS -->
+        <section id="sec-parceiros" class="admin-section">
+          <div class="section-toolbar">
+            <button class="btn btn-primary btn-sm" onclick="openPartnerModal()">+ Parceiro</button>
+          </div>
+          <div class="admin-card">
+            <div class="table-wrap" id="partners-table"></div>
+          </div>
+        </section>
+
+        <!-- GALERIA -->
+        <section id="sec-galeria" class="admin-section">
+          <div class="section-toolbar">
+            <button class="btn btn-primary btn-sm" onclick="openGalleryModal()">+ Imagem</button>
+          </div>
+          <div class="admin-card">
+            <div class="table-wrap" id="gallery-table"></div>
+          </div>
+        </section>
+
+        <!-- PAGAMENTOS -->
+        <section id="sec-pagamentos" class="admin-section">
+          <div class="admin-card">
+            <div class="table-wrap" id="payments-table"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal genérico admin -->
+  <div id="admin-modal" class="modal-overlay">
+    <div class="modal" id="admin-modal-body"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

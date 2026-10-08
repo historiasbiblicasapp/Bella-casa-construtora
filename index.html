@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#0ea5e9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Orçamentos, planos de mensalidade e manutenção de imóveis">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <title>Serviços & Planos</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ========== AUTH ========== -->
+  <div id="auth" class="auth-screen">
+    <div class="auth-logo">🏠</div>
+    <h1 class="auth-title">Serviços & Planos</h1>
+    <p class="auth-subtitle">Orçamentos e manutenção de imóveis</p>
+
+    <!-- Login -->
+    <div id="login-form" class="auth-card">
+      <div class="error-msg"></div>
+      <div class="success-msg"></div>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>E-mail / Gmail</label>
+          <input type="email" id="login-email" required placeholder="seu@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password" minlength="6">
+        </div>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+      </form>
+      <div class="auth-switch">
+        Não tem conta? <a href="#" onclick="showAuth('register'); return false;">Cadastre-se</a>
+      </div>
+      <div class="auth-switch" style="margin-top:12px">
+        <a href="admin.html" style="color:var(--text-muted);font-size:0.8rem">Área administrativa →</a>
+      </div>
+    </div>
+
+    <!-- Cadastro -->
+    <div id="register-form" class="auth-card hidden">
+      <div class="error-msg"></div>
+      <div class="success-msg"></div>
+      <form onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Nome completo</label>
+          <input type="text" id="reg-name" required placeholder="Seu nome completo" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label>E-mail / Gmail</label>
+          <input type="email" id="reg-email" required placeholder="seu@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>CPF</label>
+          <input type="text" id="reg-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label>Senha (mín. 6 caracteres)</label>
+          <input type="password" id="reg-password" required placeholder="••••••••" minlength="6" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+      </form>
+      <div class="auth-switch">
+        Já tem conta? <a href="#" onclick="showAuth('login'); return false;">Entrar</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== APP ========== -->
+  <div id="app" class="hidden">
+    <header class="app-header">
+      <h1 id="header-title">Serviços & Planos</h1>
+      <div class="user-info">
+        <span id="user-name">Usuário</span>
+        <div class="avatar" id="user-avatar">U</div>
+      </div>
+    </header>
+
+    <!-- Página Início -->
+    <div id="page-inicio" class="page active">
+      <div class="card-grid">
+        <div class="card card-clickable" onclick="navigate('orcamentos')">
+          <div class="card-icon">📋</div>
+          <div class="card-title">Orçamentos</div>
+          <div class="card-desc">Solicite orçamentos</div>
+        </div>
+        <div class="card card-clickable" onclick="navigate('planos')">
+          <div class="card-icon">📅</div>
+          <div class="card-title">Planos</div>
+          <div class="card-desc">Mensalidades</div>
+        </div>
+        <div class="card card-clickable" onclick="navigate('historico')">
+          <div class="card-icon">📜</div>
+          <div class="card-title">Histórico</div>
+          <div class="card-desc">Serviços realizados</div>
+        </div>
+        <div class="card card-clickable" onclick="navigate('config')">
+          <div class="card-icon">⚙️</div>
+          <div class="card-title">Configurações</div>
+          <div class="card-desc">Conta e documentos</div>
+        </div>
+      </div>
+
+      <div class="section-title">Serviços Realizados</div>
+      <div id="gallery-list">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+
+      <div class="section-title">Parceiros</div>
+      <div id="partners-list" class="card-grid">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Página Orçamentos -->
+    <div id="page-orcamentos" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="font-size:1.2rem">Meus Orçamentos</h2>
+        <button class="btn btn-primary btn-sm" onclick="openOrcamentoModal()">+ Novo</button>
+      </div>
+      <div id="orcamentos-list"></div>
+    </div>
+
+    <!-- Página Planos -->
+    <div id="page-planos" class="page">
+      <div id="planos-list"></div>
+    </div>
+
+    <!-- Página Histórico -->
+    <div id="page-historico" class="page">
+      <h2 style="font-size:1.2rem;margin-bottom:12px">Histórico de Serviços</h2>
+      <div id="historico-list"></div>
+    </div>
+
+    <!-- Página Configurações -->
+    <div id="page-config" class="page">
+      <h2 style="font-size:1.2rem;margin-bottom:16px">Configurações</h2>
+
+      <div class="card">
+        <div class="card-title">Dados Pessoais</div>
+        <form onsubmit="savePersonalData(event)" class="mt-2">
+          <div class="form-group">
+            <label>Nome completo</label>
+            <input type="text" id="cfg-name" required>
+          </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" id="cfg-email" disabled>
+          </div>
+          <div class="form-group">
+            <label>CPF</label>
+            <input type="text" id="cfg-cpf" maxlength="14" oninput="maskCPF(this)">
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="tel" id="cfg-phone" placeholder="(00) 00000-0000">
+          </div>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+      </div>
+
+      <div class="list-item card-clickable" onclick="openDocumentUpload()">
+        <div class="list-item-icon">📄</div>
+        <div class="list-item-content">
+          <div class="list-item-title">Documentos</div>
+          <div class="list-item-sub">Envio de RG, CPF, comprovantes</div>
+        </div>
+      </div>
+
+      <div class="list-item card-clickable" onclick="openFacialRecognition()">
+        <div class="list-item-icon">👤</div>
+        <div class="list-item-content">
+          <div class="list-item-title">Reconhecimento Facial</div>
+          <div class="list-item-sub">Validação de identidade</div>
+        </div>
+      </div>
+
+      <div class="list-item card-clickable" onclick="openPaymentMethods()">
+        <div class="list-item-icon">💳</div>
+        <div class="list-item-content">
+          <div class="list-item-title">Métodos de Pagamento</div>
+          <div class="list-item-sub">Cartão, Pix e Boleto</div>
+        </div>
+      </div>
+
+      <div class="list-item card-clickable" onclick="navigate('planos')">
+        <div class="list-item-icon">🏠</div>
+        <div class="list-item-content">
+          <div class="list-item-title">Meus Imóveis</div>
+          <div class="list-item-sub">Gerenciar propriedades e planos</div>
+        </div>
+      </div>
+
+      <button class="btn btn-outline mt-2" onclick="handleLogout()">Sair da conta</button>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-page="inicio" onclick="navigate('inicio')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+        Início
+      </button>
+      <button class="nav-item" data-page="orcamentos" onclick="navigate('orcamentos')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Orçamentos
+      </button>
+      <button class="nav-item" data-page="planos" onclick="navigate('planos')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Planos
+      </button>
+      <button class="nav-item" data-page="config" onclick="navigate('config')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Config
+      </button>
+    </nav>
+  </div>
+
+  <!-- ========== MODAIS ========== -->
+
+  <!-- Modal Orçamento -->
+  <div id="modal-orcamento" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Solicitar Orçamento</h2>
+        <button class="modal-close" onclick="closeModal('modal-orcamento')">×</button>
+      </div>
+      <form onsubmit="submitOrcamento(event)" id="orc-form">
+        <div class="form-group">
+          <label>Categoria do serviço</label>
+          <div class="chips" id="orc-category-chips"></div>
+        </div>
+        <div class="form-group">
+          <label>Descrição detalhada</label>
+          <textarea id="orc-desc" required placeholder="Descreva o que precisa ser feito, medidas aproximadas, materiais, etc."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Urgência</label>
+          <select id="orc-urgency">
+            <option value="low">Baixa</option>
+            <option value="normal" selected>Normal</option>
+            <option value="high">Alta</option>
+            <option value="urgent">Urgente</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Data preferencial (opcional)</label>
+          <input type="date" id="orc-date">
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar Solicitação</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Contratar Plano -->
+  <div id="modal-contratar-plano" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Contratar: <span id="plan-name-modal"></span></h2>
+        <button class="modal-close" onclick="closeModal('modal-contratar-plano')">×</button>
+      </div>
+      <form onsubmit="submitContratarPlano(event)">
+        <div class="form-group">
+          <label>Tipo de imóvel</label>
+          <select id="prop-type" required>
+            <option value="casa">Casa</option>
+            <option value="apartamento">Apartamento</option>
+            <option value="sala_comercial">Sala Comercial</option>
+            <option value="industria">Indústria</option>
+            <option value="loteamento">Loteamento</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nome do imóvel (opcional)</label>
+          <input type="text" id="prop-name" placeholder="Ex: Casa da Praia, Sala Centro">
+        </div>
+
+        <div class="section-title" style="margin-top:8px">Ambientes / Equipamentos</div>
+        <div id="room-counters"></div>
+
+        <div class="section-title">Endereço para inspeção</div>
+        <div class="form-group">
+          <label>Rua / Avenida</label>
+          <input type="text" id="prop-street" required placeholder="Rua das Flores">
+        </div>
+        <div class="form-group" style="display:flex;gap:8px">
+          <div style="flex:1">
+            <label>Número</label>
+            <input type="text" id="prop-number" placeholder="123">
+          </div>
+          <div style="flex:2">
+            <label>CEP</label>
+            <input type="text" id="prop-zip" required placeholder="00000-000" inputmode="numeric">
+          </div>
+        </div>
+        <div class="form-group" style="display:flex;gap:8px">
+          <div style="flex:2">
+            <label>Cidade</label>
+            <input type="text" id="prop-city" required>
+          </div>
+          <div style="flex:1">
+            <label>UF</label>
+            <input type="text" id="prop-state" required maxlength="2" placeholder="SP">
+          </div>
+        </div>
+
+        <div class="card mt-2" style="background:var(--bg-input);text-align:center">
+          <div class="text-sm text-muted">Valor estimado</div>
+          <div id="plan-estimate" style="font-size:1.3rem;font-weight:700;color:var(--primary)">R$ 0,00/mês</div>
+          <div class="text-sm text-muted">Sujeito a avaliação na inspeção</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Solicitar Plano + Inspeção</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Pagamento -->
+  <div id="modal-pagamento" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Método de Pagamento</h2>
+        <button class="modal-close" onclick="closeModal('modal-pagamento')">×</button>
+      </div>
+      <form onsubmit="addPaymentMethod(event)">
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="pay-type" onchange="document.getElementById('card-fields').style.display = this.value === 'credit_card' ? 'block' : 'none'">
+            <option value="credit_card">Cartão de Crédito</option>
+            <option value="pix">Pix</option>
+            <option value="boleto">Boleto Bancário</option>
+          </select>
+        </div>
+        <div id="card-fields">
+          <div class="form-group">
+            <label>Nome no cartão</label>
+            <input type="text" id="pay-holder" placeholder="Como está no cartão">
+          </div>
+          <div class="form-group">
+            <label>Bandeira</label>
+            <select id="pay-brand">
+              <option value="visa">Visa</option>
+              <option value="mastercard">Mastercard</option>
+              <option value="elo">Elo</option>
+              <option value="amex">American Express</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Últimos 4 dígitos</label>
+            <input type="text" id="pay-lastfour" maxlength="4" inputmode="numeric" placeholder="1234">
+          </div>
+          <p class="text-sm text-muted">Em produção, os dados do cartão serão tokenizados via gateway (Stripe / Mercado Pago). Nunca armazenamos o número completo.</p>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Install Banner -->
+  <div id="install-banner" class="install-banner">
+    <span>Instalar o app no seu dispositivo</span>
+    <div class="flex gap-1">
+      <button onclick="installPWA()">Instalar</button>
+      <button onclick="dismissInstall()" style="background:transparent;color:white;border:1px solid white">Agora não</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
