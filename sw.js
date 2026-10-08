@@ -1,5 +1,5 @@
-/* Service Worker - PWA Serviços & Planos */
-const CACHE_NAME = 'servicos-planos-v2';
+/* Service Worker - PWA Bella Casa Construtora */
+const CACHE_NAME = 'bella-casa-construtora-v2';
 const ASSETS = [
   '/',
   '/index.html',

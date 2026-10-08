@@ -1,5 +1,5 @@
 /* =====================================================
-   Painel Administrativo — Serviços & Planos
+   Painel Administrativo — Bella Casa Construtora
    ===================================================== */
 
 const SUPABASE_URL = 'https://jwlbwgzaukwjhuqhoewl.supabase.co';

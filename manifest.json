@@ -1,7 +1,7 @@
 {
-  "name": "Serviços & Planos",
-  "short_name": "Serviços",
-  "description": "Orçamentos, planos de mensalidade e manutenção de imóveis",
+  "name": "Bella Casa Construtora",
+  "short_name": "Bella Casa",
+  "description": "Orçamentos, planos de mensalidade e manutenção de imóveis — Bella Casa Construtora",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -22,7 +22,10 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "screenshots": [],
   "prefer_related_applications": false
 }

@@ -1,4 +1,4 @@
-# Serviços & Planos — PWA Completo + Painel Admin
+# Bella Casa Construtora — PWA Completo + Painel Admin
 
 Aplicativo web progressivo (PWA) instalável em **Android, iOS e Desktop**, integrado ao **Supabase**, com **painel administrativo** completo.
 
