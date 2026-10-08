@@ -42,8 +42,9 @@ html, body {
   min-height: 100dvh;
 }
 
-/* Login sem barra de rolagem */
-body:has(#auth:not(.hidden)) {
+/* Login e vitrine sem barra de rolagem */
+body:has(#auth:not(.hidden)),
+body:has(#welcome:not(.hidden)) {
   padding-bottom: 0;
   height: 100dvh;
   max-height: 100dvh;
@@ -51,14 +52,19 @@ body:has(#auth:not(.hidden)) {
 }
 
 html:has(#auth:not(.hidden)),
+html:has(#welcome:not(.hidden)),
 body:has(#auth:not(.hidden)),
-body:has(#auth:not(.hidden)) .auth-screen {
+body:has(#welcome:not(.hidden)),
+body:has(#auth:not(.hidden)) .auth-screen,
+body:has(#welcome:not(.hidden)) .welcome {
   overflow: hidden !important;
   scrollbar-width: none;
 }
 
 html:has(#auth:not(.hidden))::-webkit-scrollbar,
-body:has(#auth:not(.hidden))::-webkit-scrollbar {
+html:has(#welcome:not(.hidden))::-webkit-scrollbar,
+body:has(#auth:not(.hidden))::-webkit-scrollbar,
+body:has(#welcome:not(.hidden))::-webkit-scrollbar {
   width: 0;
   height: 0;
   display: none;
@@ -769,5 +775,108 @@ body:has(#app:not(.hidden)) {
   .form-group select,
   .form-group textarea {
     font-size: 16px;
+  }
+}
+
+/* ========== Vitrine de serviços ========== */
+.welcome {
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  color: #fff;
+}
+
+.welcome-top {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 10px 16px 8px;
+  background: #000;
+}
+
+.welcome-top img {
+  height: 42px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+}
+
+.svc-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 3px;
+  background: #000;
+}
+
+.svc-tile {
+  position: relative;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background: #111;
+}
+
+.svc-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.02);
+  transition: transform 0.4s ease;
+}
+
+.svc-tile:active img,
+.svc-tile:hover img {
+  transform: scale(1.08);
+}
+
+.svc-tile span {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-align: left;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+}
+
+.welcome-bar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: #000;
+}
+
+.welcome-bar .btn {
+  width: auto;
+  flex: 1;
+}
+
+body:has(#welcome:not(.hidden)) .install-banner,
+body:has(#welcome:not(.hidden)) #ios-install-tip {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-tile img {
+    transition: none;
   }
 }

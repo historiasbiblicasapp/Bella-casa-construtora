@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     showApp();
   } else {
-    showAuth('login');
+    showWelcome();
   }
 
   sb.auth.onAuthStateChange(async (event, session) => {
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
       currentProfile = null;
-      showAuth('login');
+      showWelcome();
     }
   });
 
@@ -146,7 +146,19 @@ function updateHeader() {
 // =====================================================
 // Navegação
 // =====================================================
+function showWelcome() {
+  document.getElementById('welcome')?.classList.remove('hidden');
+  document.getElementById('auth')?.classList.add('hidden');
+  document.getElementById('app')?.classList.add('hidden');
+}
+
+function openAuth(mode) {
+  document.getElementById('welcome')?.classList.add('hidden');
+  showAuth(mode);
+}
+
 function showAuth(mode) {
+  document.getElementById('welcome')?.classList.add('hidden');
   document.getElementById('app').classList.add('hidden');
   document.getElementById('auth').classList.remove('hidden');
   document.getElementById('login-form').classList.toggle('hidden', mode !== 'login');
@@ -155,6 +167,7 @@ function showAuth(mode) {
 }
 
 function showApp() {
+  document.getElementById('welcome')?.classList.add('hidden');
   document.getElementById('auth').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   navigate('inicio');
@@ -746,6 +759,8 @@ function dismissInstall() {
 
 // Expor funções usadas em onclick do HTML
 window.showAuth = showAuth;
+window.showWelcome = showWelcome;
+window.openAuth = openAuth;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;

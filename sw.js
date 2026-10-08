@@ -1,15 +1,21 @@
 /* Service Worker - PWA Bella Casa Construtora */
-const CACHE_NAME = 'bella-casa-construtora-v4';
+const CACHE_NAME = 'bella-casa-construtora-v5';
 const ASSETS = [
   '/',
   '/index.html',
   '/admin.html',
-  '/css/styles.css?v=4',
+  '/css/styles.css?v=5',
   '/css/admin.css',
   '/js/app.js',
   '/js/admin.js',
   '/manifest.json',
   '/assets/logo.png',
+  '/assets/servicos/construcao.jpg',
+  '/assets/servicos/pintura.jpg',
+  '/assets/servicos/eletrica.jpg',
+  '/assets/servicos/encanamento.jpg',
+  '/assets/servicos/telhado.jpg',
+  '/assets/servicos/jardinagem.jpg',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/favicon.png',

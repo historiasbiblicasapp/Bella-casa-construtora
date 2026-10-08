@@ -14,12 +14,49 @@
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
   <link rel="icon" type="image/png" href="icons/favicon.png">
   <title>Bella Casa Construtora</title>
-  <link rel="stylesheet" href="css/styles.css?v=4">
+  <link rel="stylesheet" href="css/styles.css?v=5">
 </head>
 <body>
 
+  <!-- ========== SERVIÇOS (antes do login) ========== -->
+  <section id="welcome" class="welcome">
+    <header class="welcome-top">
+      <img src="assets/logo.png" alt="Bella Casa Construtora">
+    </header>
+    <div class="svc-grid">
+      <button type="button" class="svc-tile" onclick="openAuth('login')">
+        <img src="assets/servicos/construcao.jpg" alt="Construção de residência">
+        <span>Construção</span>
+      </button>
+      <button type="button" class="svc-tile" onclick="openAuth('login')">
+        <img src="assets/servicos/pintura.jpg" alt="Pintura de ambiente">
+        <span>Pintura</span>
+      </button>
+      <button type="button" class="svc-tile" onclick="openAuth('login')">
+        <img src="assets/servicos/eletrica.jpg" alt="Instalação elétrica">
+        <span>Elétrica</span>
+      </button>
+      <button type="button" class="svc-tile" onclick="openAuth('login')">
+        <img src="assets/servicos/encanamento.jpg" alt="Reparo de encanamento">
+        <span>Encanamento</span>
+      </button>
+      <button type="button" class="svc-tile" onclick="openAuth('login')">
+        <img src="assets/servicos/telhado.jpg" alt="Reparo de telhado">
+        <span>Telhado</span>
+      </button>
+      <button type="button" class="svc-tile" onclick="openAuth('login')">
+        <img src="assets/servicos/jardinagem.jpg" alt="Jardinagem">
+        <span>Jardinagem</span>
+      </button>
+    </div>
+    <div class="welcome-bar">
+      <button type="button" class="btn btn-primary" onclick="openAuth('login')">Entrar</button>
+      <button type="button" class="btn btn-outline" onclick="openAuth('register')">Cadastrar</button>
+    </div>
+  </section>
+
   <!-- ========== AUTH ========== -->
-  <div id="auth" class="auth-screen">
+  <div id="auth" class="auth-screen hidden">
     <img src="assets/logo.png" alt="Bella Casa Construtora" class="auth-logo-img">
     <p class="auth-subtitle">Orçamentos, planos e construção de imóveis</p>
 
@@ -42,7 +79,7 @@
         Não tem conta? <a href="#" onclick="showAuth('register'); return false;">Cadastre-se</a>
       </div>
       <div class="auth-switch" style="margin-top:12px">
-        <a href="admin.html" style="color:var(--text-muted);font-size:0.8rem">Área administrativa →</a>
+        <a href="#" onclick="showWelcome(); return false;" style="color:var(--text-muted);font-size:0.8rem">← Ver serviços</a>
       </div>
     </div>
 
@@ -71,6 +108,7 @@
       </form>
       <div class="auth-switch">
         Já tem conta? <a href="#" onclick="showAuth('login'); return false;">Entrar</a>
+        · <a href="#" onclick="showWelcome(); return false;">Serviços</a>
       </div>
     </div>
   </div>
