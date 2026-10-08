@@ -780,8 +780,12 @@ body:has(#app:not(.hidden)) {
 
 /* ========== Vitrine de serviços ========== */
 .welcome {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
   height: 100dvh;
   max-height: 100dvh;
+  z-index: 300;
   display: flex;
   flex-direction: column;
   background: #000;
@@ -875,8 +879,32 @@ body:has(#welcome:not(.hidden)) #ios-install-tip {
   display: none !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .svc-tile img {
-    transition: none;
+@media (min-width: 768px) {
+  .welcome-top img {
+    height: 56px;
+    max-width: 280px;
+  }
+  .svc-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+  }
+  .svc-tile span {
+    font-size: 0.95rem;
+    padding: 8px 14px;
+  }
+  .welcome-bar {
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 20px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .svc-tile span {
+    font-size: 1.05rem;
+    left: 14px;
+    bottom: 14px;
   }
 }
