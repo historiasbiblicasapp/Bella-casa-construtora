@@ -665,12 +665,6 @@ body {
   .modal-overlay {
     align-items: center;
   }
-  body {
-    max-width: 600px;
-    margin: 0 auto;
-    border-left: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-  }
 }
 /* Logo na tela de login */
 .auth-logo-img {
@@ -683,4 +677,71 @@ body {
 
 .auth-screen {
   background: #000000;
+}
+
+/* ========== Responsive / Mobile polish ========== */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+/* Tablets and up: center content like a phone frame is optional */
+@media (min-width: 768px) {
+  body {
+    max-width: 480px;
+    margin: 0 auto;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    box-shadow: 0 0 40px rgba(0,0,0,0.4);
+  }
+  .bottom-nav {
+    max-width: 480px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .install-banner {
+    max-width: 456px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    width: calc(100% - 24px);
+  }
+  .app-header {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Desktop: slightly wider app shell */
+  body {
+    max-width: 520px;
+  }
+  .bottom-nav, .app-header {
+    max-width: 520px;
+  }
+  .install-banner {
+    max-width: 496px;
+  }
+}
+
+/* Touch targets */
+.nav-item, .btn, .chip, .card-clickable {
+  min-height: 44px;
+}
+
+.bottom-nav {
+  /* safe area already handled */
+}
+
+/* Prevent zoom on input focus on iOS */
+@media (max-width: 767px) {
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px;
+  }
 }

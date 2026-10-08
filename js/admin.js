@@ -5,7 +5,7 @@
 const SUPABASE_URL = 'https://jwlbwgzaukwjhuqhoewl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bGJ3Z3phdWt3amh1cWhvZXdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0Mjk5MTQsImV4cCI6MjEwNzAwNTkxNH0.4_oeh6OMjUQKLMqKZ1iuxJG6bOEQukAnbKiCm7gH_gM';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let adminUser = null;
 let adminProfile = null;
@@ -28,7 +28,7 @@ const STATUS_LABELS = {
 // Init
 // =====================================================
 document.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (session) {
     await checkAdminAccess(session.user);
   } else {
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showGate('Faça login no app com uma conta master/admin e depois acesse /admin.html');
   }
 
-  supabase.auth.onAuthStateChange(async (event, session) => {
+  sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       await checkAdminAccess(session.user);
     } else if (event === 'SIGNED_OUT') {
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function checkAdminAccess(user) {
   adminUser = user;
-  const { data: profile, error } = await supabase
+  const { data: profile, error } = await sb
     .from('profiles')
     .select('*')
     .eq('id', user.id)
@@ -55,7 +55,7 @@ async function checkAdminAccess(user) {
 
   if (error || !profile || !['admin', 'master'].includes(profile.role)) {
     showGate('Acesso negado. Sua conta não possui permissão de administrador.');
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     return;
   }
 
@@ -76,7 +76,7 @@ function showGate(msg) {
 }
 
 async function adminLogout() {
-  await supabase.auth.signOut();
+  await sb.auth.signOut();
   window.location.href = 'index.html';
 }
 
@@ -126,9 +126,9 @@ function adminNav(section) {
 // =====================================================
 async function loadDashboard() {
   const [clients, budgets, subs] = await Promise.all([
-    supabase.from('profiles').select('id, full_name, email, created_at, role').eq('role', 'client'),
-    supabase.from('budget_requests').select('id, status, title, category, created_at, profiles(full_name)').order('created_at', { ascending: false }).limit(10),
-    supabase.from('subscriptions').select('id, status, monthly_value')
+    sb.from('profiles').select('id, full_name, email, created_at, role').eq('role', 'client'),
+    sb.from('budget_requests').select('id, status, title, category, created_at, profiles(full_name)').order('created_at', { ascending: false }).limit(10),
+    sb.from('subscriptions').select('id, status, monthly_value')
   ]);
 
   const clientCount = clients.data?.length || 0;
@@ -181,7 +181,7 @@ async function loadDashboard() {
 // Clientes
 // =====================================================
 async function loadClients() {
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('profiles')
     .select('*')
     .order('created_at', { ascending: false });
@@ -231,9 +231,9 @@ async function viewClient(id) {
   if (!c) return;
 
   const [{ data: props }, { data: subs }, { data: budgets }] = await Promise.all([
-    supabase.from('properties').select('*').eq('user_id', id),
-    supabase.from('subscriptions').select('*, subscription_plans(name)').eq('user_id', id),
-    supabase.from('budget_requests').select('*').eq('user_id', id).order('created_at', { ascending: false }).limit(5)
+    sb.from('properties').select('*').eq('user_id', id),
+    sb.from('subscriptions').select('*, subscription_plans(name)').eq('user_id', id),
+    sb.from('budget_requests').select('*').eq('user_id', id).order('created_at', { ascending: false }).limit(5)
   ]);
 
   openAdminModal(`
@@ -258,13 +258,13 @@ async function viewClient(id) {
 
 async function promoteAdmin(id) {
   if (!confirm('Tornar este usuário administrador?')) return;
-  const { error } = await supabase.from('profiles').update({ role: 'admin' }).eq('id', id);
+  const { error } = await sb.from('profiles').update({ role: 'admin' }).eq('id', id);
   if (error) alert(error.message); else { alert('Usuário promovido a admin'); loadClients(); }
 }
 
 async function demoteClient(id) {
   if (!confirm('Remover permissão de admin?')) return;
-  const { error } = await supabase.from('profiles').update({ role: 'client' }).eq('id', id);
+  const { error } = await sb.from('profiles').update({ role: 'client' }).eq('id', id);
   if (error) alert(error.message); else { alert('Permissão removida'); loadClients(); }
 }
 
@@ -273,7 +273,7 @@ async function demoteClient(id) {
 // =====================================================
 async function loadAdminBudgets() {
   const status = document.getElementById('filter-budget-status')?.value || '';
-  let query = supabase
+  let query = sb
     .from('budget_requests')
     .select('*, profiles(full_name, email)')
     .order('created_at', { ascending: false });
@@ -307,7 +307,7 @@ async function loadAdminBudgets() {
 }
 
 async function editBudget(id) {
-  const { data: b } = await supabase.from('budget_requests').select('*, profiles(full_name, email)').eq('id', id).single();
+  const { data: b } = await sb.from('budget_requests').select('*, profiles(full_name, email)').eq('id', id).single();
   if (!b) return;
 
   openAdminModal(`
@@ -344,7 +344,7 @@ async function saveBudget(e, id) {
   const quoted_value = document.getElementById('edit-value').value || null;
   const admin_notes = document.getElementById('edit-notes').value;
 
-  const { error } = await supabase.from('budget_requests').update({
+  const { error } = await sb.from('budget_requests').update({
     status, quoted_value, admin_notes, updated_at: new Date().toISOString()
   }).eq('id', id);
 
@@ -360,7 +360,7 @@ async function saveBudget(e, id) {
 // Assinaturas
 // =====================================================
 async function loadSubscriptions() {
-  const { data } = await supabase
+  const { data } = await sb
     .from('subscriptions')
     .select('*, profiles(full_name, email), properties(name, property_type), subscription_plans(name)')
     .order('created_at', { ascending: false });
@@ -416,7 +416,7 @@ async function saveSubscription(e, id) {
   const update = { status, updated_at: new Date().toISOString() };
   if (status === 'active' && start_date) update.start_date = start_date;
 
-  const { error } = await supabase.from('subscriptions').update(update).eq('id', id);
+  const { error } = await sb.from('subscriptions').update(update).eq('id', id);
   if (error) alert(error.message);
   else { closeAdminModal(); loadSubscriptions(); alert('Assinatura atualizada!'); }
 }
@@ -425,7 +425,7 @@ async function saveSubscription(e, id) {
 // Planos
 // =====================================================
 async function loadAdminPlans() {
-  const { data } = await supabase.from('subscription_plans').select('*').order('base_price');
+  const { data } = await sb.from('subscription_plans').select('*').order('base_price');
   const el = document.getElementById('plans-table');
   if (!data?.length) {
     el.innerHTML = '<div class="empty-table">Nenhum plano</div>';
@@ -470,7 +470,7 @@ function openPlanModal(plan = null) {
 }
 
 async function editPlan(id) {
-  const { data } = await supabase.from('subscription_plans').select('*').eq('id', id).single();
+  const { data } = await sb.from('subscription_plans').select('*').eq('id', id).single();
   if (data) openPlanModal(data);
 }
 
@@ -488,16 +488,16 @@ async function savePlan(e, id) {
 
   let error;
   if (id) {
-    ({ error } = await supabase.from('subscription_plans').update(payload).eq('id', id));
+    ({ error } = await sb.from('subscription_plans').update(payload).eq('id', id));
   } else {
-    ({ error } = await supabase.from('subscription_plans').insert(payload));
+    ({ error } = await sb.from('subscription_plans').insert(payload));
   }
   if (error) alert(error.message);
   else { closeAdminModal(); loadAdminPlans(); }
 }
 
 async function togglePlan(id, active) {
-  const { error } = await supabase.from('subscription_plans').update({ is_active: active }).eq('id', id);
+  const { error } = await sb.from('subscription_plans').update({ is_active: active }).eq('id', id);
   if (error) alert(error.message); else loadAdminPlans();
 }
 
@@ -505,7 +505,7 @@ async function togglePlan(id, active) {
 // Histórico de Serviços
 // =====================================================
 async function loadAdminHistory() {
-  const { data } = await supabase
+  const { data } = await sb
     .from('service_history')
     .select('*, profiles(full_name), properties(name)')
     .order('service_date', { ascending: false });
@@ -530,7 +530,7 @@ async function loadAdminHistory() {
 }
 
 async function openHistoryModal() {
-  const { data: clients } = await supabase.from('profiles').select('id, full_name, email').eq('role', 'client').order('full_name');
+  const { data: clients } = await sb.from('profiles').select('id, full_name, email').eq('role', 'client').order('full_name');
   openAdminModal(`
     <div class="modal-header"><h2>Registrar Serviço</h2>
     <button class="modal-close" onclick="closeAdminModal()">×</button></div>
@@ -568,7 +568,7 @@ async function saveHistory(e) {
     value: document.getElementById('hist-value').value || null,
     observations: document.getElementById('hist-notes').value.trim() || null
   };
-  const { error } = await supabase.from('service_history').insert(payload);
+  const { error } = await sb.from('service_history').insert(payload);
   if (error) alert(error.message);
   else { closeAdminModal(); loadAdminHistory(); alert('Serviço registrado!'); }
 }
@@ -577,7 +577,7 @@ async function saveHistory(e) {
 // Parceiros
 // =====================================================
 async function loadAdminPartners() {
-  const { data } = await supabase.from('partners').select('*').order('order_index');
+  const { data } = await sb.from('partners').select('*').order('order_index');
   const el = document.getElementById('partners-table');
   if (!data?.length) {
     el.innerHTML = '<div class="empty-table">Nenhum parceiro</div>';
@@ -617,7 +617,7 @@ function openPartnerModal() {
 
 async function savePartner(e) {
   e.preventDefault();
-  const { error } = await supabase.from('partners').insert({
+  const { error } = await sb.from('partners').insert({
     name: document.getElementById('partner-name').value.trim(),
     description: document.getElementById('partner-desc').value.trim(),
     website: document.getElementById('partner-web').value.trim() || null,
@@ -630,7 +630,7 @@ async function savePartner(e) {
 
 async function deletePartner(id) {
   if (!confirm('Excluir parceiro?')) return;
-  await supabase.from('partners').delete().eq('id', id);
+  await sb.from('partners').delete().eq('id', id);
   loadAdminPartners();
 }
 
@@ -638,7 +638,7 @@ async function deletePartner(id) {
 // Galeria
 // =====================================================
 async function loadAdminGallery() {
-  const { data } = await supabase.from('service_gallery').select('*').order('created_at', { ascending: false });
+  const { data } = await sb.from('service_gallery').select('*').order('created_at', { ascending: false });
   const el = document.getElementById('gallery-table');
   if (!data?.length) {
     el.innerHTML = '<div class="empty-table">Nenhuma imagem</div>';
@@ -680,7 +680,7 @@ function openGalleryModal() {
 
 async function saveGallery(e) {
   e.preventDefault();
-  const { error } = await supabase.from('service_gallery').insert({
+  const { error } = await sb.from('service_gallery').insert({
     image_url: document.getElementById('gal-url').value.trim(),
     title: document.getElementById('gal-title').value.trim() || null,
     category: document.getElementById('gal-cat').value.trim() || null,
@@ -693,7 +693,7 @@ async function saveGallery(e) {
 
 async function deleteGallery(id) {
   if (!confirm('Excluir imagem?')) return;
-  await supabase.from('service_gallery').delete().eq('id', id);
+  await sb.from('service_gallery').delete().eq('id', id);
   loadAdminGallery();
 }
 
@@ -701,7 +701,7 @@ async function deleteGallery(id) {
 // Pagamentos
 // =====================================================
 async function loadAdminPayments() {
-  const { data } = await supabase
+  const { data } = await sb
     .from('payments')
     .select('*, profiles(full_name, email)')
     .order('created_at', { ascending: false });

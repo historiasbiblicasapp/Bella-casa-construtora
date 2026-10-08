@@ -1,11 +1,11 @@
 /* =====================================================
-   SERVIÇOS & PLANOS - App Principal
+   Bella Casa Construtora - App Principal
    ===================================================== */
 
 const SUPABASE_URL = 'https://jwlbwgzaukwjhuqhoewl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bGJ3Z3phdWt3amh1cWhvZXdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0Mjk5MTQsImV4cCI6MjEwNzAwNTkxNH0.4_oeh6OMjUQKLMqKZ1iuxJG6bOEQukAnbKiCm7gH_gM';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Estado global
 let currentUser = null;
@@ -39,16 +39,38 @@ const PROPERTY_TYPES = [
 // Inicialização
 // =====================================================
 document.addEventListener('DOMContentLoaded', async () => {
-  // PWA install prompt
+  // PWA install prompt (Chrome/Edge/Android)
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const banner = document.getElementById('install-banner');
-    if (banner) banner.classList.add('show');
+    if (!localStorage.getItem('pwa-dismissed')) {
+      const banner = document.getElementById('install-banner');
+      if (banner) banner.classList.add('show');
+    }
+  });
+
+  // iOS: mostrar dica de instalação (Safari não dispara beforeinstallprompt)
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (isIos && !isStandalone && !localStorage.getItem('ios-tip-dismissed')) {
+    const tip = document.getElementById('ios-install-tip');
+    if (tip) {
+      tip.style.display = 'flex';
+      tip.querySelector('button')?.addEventListener('click', () => {
+        localStorage.setItem('ios-tip-dismissed', '1');
+      });
+    }
+  }
+
+  // Já instalado: esconder banners
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('install-banner')?.classList.remove('show');
+    deferredPrompt = null;
   });
 
   // Auth state
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (session) {
     currentUser = session.user;
     await loadProfile();
@@ -61,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAuth('login');
   }
 
-  supabase.auth.onAuthStateChange(async (event, session) => {
+  sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       currentUser = session.user;
       await loadProfile();
@@ -89,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadProfile() {
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('profiles')
     .select('*')
     .eq('id', currentUser.id)
@@ -166,7 +188,7 @@ async function handleLogin(e) {
   btn.disabled = true;
   btn.textContent = 'Entrando...';
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
   btn.disabled = false;
   btn.textContent = 'Entrar';
 
@@ -198,7 +220,7 @@ async function handleRegister(e) {
   btn.disabled = true;
   btn.textContent = 'Cadastrando...';
 
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await sb.auth.signUp({
     email,
     password,
     options: {
@@ -219,7 +241,7 @@ async function handleRegister(e) {
 }
 
 async function handleLogout() {
-  await supabase.auth.signOut();
+  await sb.auth.signOut();
 }
 
 function showError(msg) {
@@ -260,7 +282,7 @@ function maskCPF(input) {
 // =====================================================
 async function loadInicio() {
   // Parceiros
-  const { data: partners } = await supabase
+  const { data: partners } = await sb
     .from('partners')
     .select('*')
     .eq('is_active', true)
@@ -282,7 +304,7 @@ async function loadInicio() {
   }
 
   // Galeria
-  const { data: gallery } = await supabase
+  const { data: gallery } = await sb
     .from('service_gallery')
     .select('*')
     .order('created_at', { ascending: false })
@@ -335,7 +357,7 @@ async function submitOrcamento(e) {
   const btn = e.target.querySelector('button[type="submit"]');
   btn.disabled = true;
 
-  const { error } = await supabase.from('budget_requests').insert({
+  const { error } = await sb.from('budget_requests').insert({
     user_id: currentUser.id,
     category: selectedCategory,
     description,
@@ -359,7 +381,7 @@ async function loadOrcamentos() {
   if (!el) return;
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('budget_requests')
     .select('*')
     .eq('user_id', currentUser.id)
@@ -413,13 +435,13 @@ async function loadPlanos() {
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
   // Planos disponíveis
-  const { data: plans } = await supabase
+  const { data: plans } = await sb
     .from('subscription_plans')
     .select('*')
     .eq('is_active', true);
 
   // Assinaturas do usuário
-  const { data: subs } = await supabase
+  const { data: subs } = await sb
     .from('subscriptions')
     .select('*, properties(name, property_type), subscription_plans(name)')
     .eq('user_id', currentUser.id);
@@ -529,7 +551,7 @@ async function submitContratarPlano(e) {
 
   try {
     // 1. Criar endereço
-    const { data: addr, error: addrErr } = await supabase.from('addresses').insert({
+    const { data: addr, error: addrErr } = await sb.from('addresses').insert({
       user_id: currentUser.id,
       street, number, city, state, zip_code: zip,
       label: propertyName
@@ -537,7 +559,7 @@ async function submitContratarPlano(e) {
     if (addrErr) throw addrErr;
 
     // 2. Criar imóvel
-    const { data: prop, error: propErr } = await supabase.from('properties').insert({
+    const { data: prop, error: propErr } = await sb.from('properties').insert({
       user_id: currentUser.id,
       property_type: propertyType,
       name: propertyName,
@@ -551,7 +573,7 @@ async function submitContratarPlano(e) {
     const totalRooms = Object.values(roomCounts).reduce((a, b) => a + b, 0);
     const monthlyValue = selectedPlan.basePrice + (totalRooms * selectedPlan.pricePerRoom);
 
-    const { error: subErr } = await supabase.from('subscriptions').insert({
+    const { error: subErr } = await sb.from('subscriptions').insert({
       user_id: currentUser.id,
       property_id: prop.id,
       plan_id: selectedPlan.id,
@@ -579,7 +601,7 @@ async function loadHistorico() {
   if (!el) return;
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('service_history')
     .select('*, properties(name, property_type)')
     .eq('user_id', currentUser.id)
@@ -635,7 +657,7 @@ async function savePersonalData(e) {
   const cpf = document.getElementById('cfg-cpf').value.replace(/\D/g, '');
   const phone = document.getElementById('cfg-phone')?.value || null;
 
-  const { error } = await supabase.from('profiles').update({
+  const { error } = await sb.from('profiles').update({
     full_name, cpf, phone, updated_at: new Date().toISOString()
   }).eq('id', currentUser.id);
 
@@ -667,7 +689,7 @@ async function addPaymentMethod(e) {
   const holder = document.getElementById('pay-holder')?.value || null;
 
   // Em produção, integre com Stripe/MercadoPago para tokenização real
-  const { error } = await supabase.from('payment_methods').insert({
+  const { error } = await sb.from('payment_methods').insert({
     user_id: currentUser.id,
     type,
     last_four: lastFour,
@@ -719,4 +741,28 @@ async function installPWA() {
 
 function dismissInstall() {
   document.getElementById('install-banner')?.classList.remove('show');
+  localStorage.setItem('pwa-dismissed', '1');
 }
+
+// Expor funções usadas em onclick do HTML
+window.showAuth = showAuth;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.handleLogout = handleLogout;
+window.navigate = navigate;
+window.maskCPF = maskCPF;
+window.openOrcamentoModal = openOrcamentoModal;
+window.selectCategory = selectCategory;
+window.submitOrcamento = submitOrcamento;
+window.openContratarPlano = openContratarPlano;
+window.changeRoom = changeRoom;
+window.submitContratarPlano = submitContratarPlano;
+window.savePersonalData = savePersonalData;
+window.openDocumentUpload = openDocumentUpload;
+window.openFacialRecognition = openFacialRecognition;
+window.openPaymentMethods = openPaymentMethods;
+window.addPaymentMethod = addPaymentMethod;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.installPWA = installPWA;
+window.dismissInstall = dismissInstall;

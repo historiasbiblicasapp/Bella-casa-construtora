@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
   <meta name="theme-color" content="#0ea5e9">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="Orçamentos, planos de mensalidade e manutenção de imóveis">
@@ -365,11 +366,25 @@
 
   <!-- Install Banner -->
   <div id="install-banner" class="install-banner">
-    <span>Instalar o app no seu dispositivo</span>
-    <div class="flex gap-1">
-      <button onclick="installPWA()">Instalar</button>
-      <button onclick="dismissInstall()" style="background:transparent;color:white;border:1px solid white">Agora não</button>
+    <div style="display:flex;align-items:center;gap:10px;flex:1">
+      <img src="icons/icon-192.png" alt="" width="40" height="40" style="border-radius:8px">
+      <div>
+        <strong style="display:block;font-size:0.9rem">Instalar Bella Casa</strong>
+        <span style="font-size:0.75rem;opacity:0.9">Acesso rápido na tela inicial</span>
+      </div>
     </div>
+    <div class="flex gap-1" style="flex-shrink:0">
+      <button onclick="installPWA()">Instalar</button>
+      <button onclick="dismissInstall()" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.5);padding:8px 10px">✕</button>
+    </div>
+  </div>
+
+  <!-- iOS install tip -->
+  <div id="ios-install-tip" class="install-banner" style="display:none;background:#1e293b;border:1px solid var(--border)">
+    <div style="font-size:0.85rem;flex:1">
+      <strong>Instalar no iPhone/iPad:</strong> toque em <strong>Compartilhar</strong> e depois <strong>Adicionar à Tela de Início</strong>
+    </div>
+    <button onclick="document.getElementById('ios-install-tip').style.display='none'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.4);padding:8px 10px">✕</button>
   </div>
 
   <!-- Scripts -->
