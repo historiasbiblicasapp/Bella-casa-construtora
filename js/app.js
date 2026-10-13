@@ -264,6 +264,63 @@ async function handleRegister(e) {
   setTimeout(() => showAuth('login'), 2500);
 }
 
+const ACESSO_EMPRESA = {
+  email: 'master@bellacasaconstrutora.com',
+  password: 'BellaCasa@2026'
+};
+
+async function entrarAcessoEmpresa() {
+  const emailEl = document.getElementById('login-email');
+  const passEl = document.getElementById('login-password');
+  if (emailEl) emailEl.value = ACESSO_EMPRESA.email;
+  if (passEl) passEl.value = ACESSO_EMPRESA.password;
+  clearMessages();
+  const btn = document.querySelector('#login-form button.btn-outline');
+  if (btn) { btn.disabled = true; btn.textContent = 'Entrando...'; }
+
+  let { data, error } = await sb.auth.signInWithPassword(ACESSO_EMPRESA);
+  if (error && /invalid login credentials/i.test(error.message || '')) {
+    const created = await sb.auth.signUp({
+      email: ACESSO_EMPRESA.email,
+      password: ACESSO_EMPRESA.password,
+      options: { data: { full_name: 'Master Bella Casa', role: 'master' } }
+    });
+    if (created.error && !/already/i.test(created.error.message || '')) {
+      showError(created.error.message);
+      if (btn) { btn.disabled = false; btn.textContent = 'Entrar com a senha do aplicativo'; }
+      return;
+    }
+    ({ data, error } = await sb.auth.signInWithPassword(ACESSO_EMPRESA));
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Entrar com a senha do aplicativo'; }
+  if (error) {
+    showError(/email not confirmed/i.test(error.message || '')
+      ? 'Senha criada. Confirme o e-mail master@bellacasaconstrutora.com para entrar.'
+      : error.message);
+    return;
+  }
+  if (!data?.session) {
+    showError('Senha definida. Confirme o e-mail para concluir o acesso.');
+  }
+}
+
+async function changePassword(e) {
+  e.preventDefault();
+  const a = document.getElementById('cfg-new-pass').value;
+  const b = document.getElementById('cfg-new-pass2').value;
+  if (a !== b) {
+    alert('As senhas não coincidem.');
+    return;
+  }
+  const { error } = await sb.auth.updateUser({ password: a });
+  if (error) alert(error.message);
+  else {
+    alert('Senha alterada. Use a nova senha no próximo login.');
+    e.target.reset();
+  }
+}
+
 async function handleLogout() {
   await sb.auth.signOut();
 }
@@ -775,6 +832,8 @@ window.openAuth = openAuth;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;
+window.entrarAcessoEmpresa = entrarAcessoEmpresa;
+window.changePassword = changePassword;
 window.navigate = navigate;
 window.maskCPF = maskCPF;
 window.openOrcamentoModal = openOrcamentoModal;

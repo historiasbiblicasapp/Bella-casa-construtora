@@ -1,5 +1,5 @@
 /* Service Worker - PWA Bella Casa Construtora */
-const CACHE_NAME = 'bella-casa-construtora-v7';
+const CACHE_NAME = 'bella-casa-construtora-v9';
 const ASSETS = [
   '/',
   '/index.html',
