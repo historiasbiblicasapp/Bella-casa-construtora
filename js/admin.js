@@ -54,8 +54,12 @@ async function checkAdminAccess(user) {
     .single();
 
   if (error || !profile || !['admin', 'master'].includes(profile.role)) {
-    showGate('Acesso negado. Sua conta não possui permissão de administrador.');
-    await sb.auth.signOut();
+    // Não encerra a sessão: o cliente continua logado no app.
+    const detail = error
+      ? 'Não foi possível ler o perfil (' + error.message + ').'
+      : 'Esta conta ainda não é master/admin.';
+    showGate(detail + ' Voltando ao aplicativo.');
+    setTimeout(() => { window.location.href = 'index.html'; }, 1600);
     return;
   }
 

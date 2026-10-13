@@ -21,9 +21,17 @@
 }
 
 /* Sidebar */
-.admin-sidebar {
-  width: 260px;
-  background: var(--bg-card);
+#admin-app > :not(.float-bg) {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-sidebar,
+.admin-topbar,
+.admin-card,
+.stat-card {
+  background: rgba(30, 41, 59, 0.92);
+}
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;

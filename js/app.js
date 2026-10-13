@@ -206,9 +206,20 @@ async function handleLogin(e) {
   btn.textContent = 'Entrar';
 
   if (error) {
-    showError(error.message === 'Invalid login credentials'
-      ? 'E-mail ou senha incorretos'
-      : error.message);
+    const raw = error.message || '';
+    let msg = raw;
+    if (/invalid login credentials/i.test(raw)) {
+      msg = 'E-mail ou senha incorretos. Se acabou de cadastrar, confirme o e-mail ou peça para desativar a confirmação no Supabase.';
+    } else if (/email not confirmed/i.test(raw)) {
+      msg = 'Confirme o e-mail antes de entrar. Abra a mensagem da Bella Casa na sua caixa de entrada.';
+    } else if (/database error/i.test(raw)) {
+      msg = 'O cadastro no banco falhou. Rode o SQL do perfil (coluna role) no Supabase e tente de novo.';
+    }
+    showError(msg);
+    return;
+  }
+  if (!data.session) {
+    showError('Conta criada ou login pendente: confirme o e-mail para liberar o acesso.');
   }
 }
 
