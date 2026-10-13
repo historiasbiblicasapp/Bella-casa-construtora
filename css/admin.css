@@ -32,6 +32,9 @@
 .stat-card {
   background: rgba(30, 41, 59, 0.92);
 }
+
+.admin-sidebar {
+  width: 260px;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
