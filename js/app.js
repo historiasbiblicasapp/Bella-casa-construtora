@@ -69,6 +69,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     deferredPrompt = null;
   });
 
+  // Login definido no código (não depende do Supabase)
+  if (lerAcessoLocal()) {
+    window.location.href = 'admin.html';
+    return;
+  }
+
   // Auth state
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
@@ -197,6 +203,10 @@ async function handleLogin(e) {
   clearMessages();
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
+  if (credenciaisDoCodigo(email, password)) {
+    entrarPeloCodigo();
+    return;
+  }
   const btn = e.target.querySelector('button[type="submit"]');
   btn.disabled = true;
   btn.textContent = 'Entrando...';
@@ -269,6 +279,33 @@ const ACESSO_EMPRESA = {
   password: 'BellaCasa@2026'
 };
 
+function credenciaisDoCodigo(email, password) {
+  return String(email || '').trim().toLowerCase() === ACESSO_EMPRESA.email
+    && password === ACESSO_EMPRESA.password;
+}
+
+function lerAcessoLocal() {
+  try {
+    const raw = localStorage.getItem('bella_casa_local_auth');
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (data && data.email === ACESSO_EMPRESA.email && data.role === 'master') return data;
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+function entrarPeloCodigo() {
+  const perfil = {
+    email: ACESSO_EMPRESA.email,
+    role: 'master',
+    full_name: 'Master Bella Casa'
+  };
+  localStorage.setItem('bella_casa_local_auth', JSON.stringify(perfil));
+  currentUser = { id: 'local-master', email: perfil.email };
+  currentProfile = perfil;
+  window.location.href = 'admin.html';
+}
+
 async function entrarAcessoEmpresa() {
   const emailEl = document.getElementById('login-email');
   const passEl = document.getElementById('login-password');
@@ -278,31 +315,21 @@ async function entrarAcessoEmpresa() {
   const btn = document.querySelector('#login-form button.btn-outline');
   if (btn) { btn.disabled = true; btn.textContent = 'Entrando...'; }
 
-  let { data, error } = await sb.auth.signInWithPassword(ACESSO_EMPRESA);
-  if (error && /invalid login credentials/i.test(error.message || '')) {
-    const created = await sb.auth.signUp({
-      email: ACESSO_EMPRESA.email,
-      password: ACESSO_EMPRESA.password,
-      options: { data: { full_name: 'Master Bella Casa', role: 'master' } }
-    });
-    if (created.error && !/already/i.test(created.error.message || '')) {
-      showError(created.error.message);
-      if (btn) { btn.disabled = false; btn.textContent = 'Entrar com a senha do aplicativo'; }
-      return;
+  try {
+    let { data, error } = await sb.auth.signInWithPassword(ACESSO_EMPRESA);
+    if (error && /invalid login credentials/i.test(error.message || '')) {
+      await sb.auth.signUp({
+        email: ACESSO_EMPRESA.email,
+        password: ACESSO_EMPRESA.password,
+        options: { data: { full_name: 'Master Bella Casa', role: 'master' } }
+      });
+      ({ data, error } = await sb.auth.signInWithPassword(ACESSO_EMPRESA));
     }
-    ({ data, error } = await sb.auth.signInWithPassword(ACESSO_EMPRESA));
-  }
+    if (!error && data?.session) return;
+  } catch (e) { /* segue pelo código */ }
 
   if (btn) { btn.disabled = false; btn.textContent = 'Entrar com a senha do aplicativo'; }
-  if (error) {
-    showError(/email not confirmed/i.test(error.message || '')
-      ? 'Senha criada. Confirme o e-mail master@bellacasaconstrutora.com para entrar.'
-      : error.message);
-    return;
-  }
-  if (!data?.session) {
-    showError('Senha definida. Confirme o e-mail para concluir o acesso.');
-  }
+  entrarPeloCodigo();
 }
 
 async function changePassword(e) {
@@ -322,7 +349,9 @@ async function changePassword(e) {
 }
 
 async function handleLogout() {
-  await sb.auth.signOut();
+  localStorage.removeItem('bella_casa_local_auth');
+  try { await sb.auth.signOut(); } catch (e) { /* ignore */ }
+  showWelcome();
 }
 
 function showError(msg) {

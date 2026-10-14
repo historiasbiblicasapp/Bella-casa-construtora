@@ -28,6 +28,12 @@ const STATUS_LABELS = {
 // Init
 // =====================================================
 document.addEventListener('DOMContentLoaded', async () => {
+  const local = lerAcessoLocalAdmin();
+  if (local) {
+    abrirPainelLocal(local);
+    return;
+  }
+
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     await checkAdminAccess(session.user);
@@ -40,10 +46,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (event === 'SIGNED_IN' && session) {
       await checkAdminAccess(session.user);
     } else if (event === 'SIGNED_OUT') {
+      if (lerAcessoLocalAdmin()) return;
       window.location.href = 'index.html';
     }
   });
 });
+
+function lerAcessoLocalAdmin() {
+  try {
+    const data = JSON.parse(localStorage.getItem('bella_casa_local_auth') || 'null');
+    if (data && data.role === 'master' && data.email === 'master@bellacasaconstrutora.com') return data;
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+function abrirPainelLocal(perfil) {
+  adminUser = { id: 'local-master', email: perfil.email };
+  adminProfile = perfil;
+  document.getElementById('admin-gate').classList.add('hidden');
+  document.getElementById('admin-app').classList.remove('hidden');
+  document.getElementById('admin-user-info').textContent = perfil.full_name || perfil.email;
+  document.getElementById('admin-role-badge').textContent = 'master';
+  adminNav('dashboard');
+}
 
 async function checkAdminAccess(user) {
   adminUser = user;
