@@ -21,7 +21,7 @@
 }
 
 /* Sidebar */
-#admin-app > :not(.float-bg) {
+#admin-app > :not(.flow-bg) {
   position: relative;
   z-index: 1;
 }
